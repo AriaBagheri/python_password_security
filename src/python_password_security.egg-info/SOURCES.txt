@@ -1,6 +1,7 @@
 AUTHORS.rst
 CONTRIBUTING.rst
 HISTORY.rst
+LICENSE
 MANIFEST.in
 README.rst
 pyproject.toml

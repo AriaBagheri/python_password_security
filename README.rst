@@ -28,4 +28,4 @@ Credits
 -------
 This package was coded in it\'s entirety by Aria Bagheri. But you can always contribute if you want! Just fork the project, have your go at it, and then submit a pull request!
 Special thanks to folks at haveibeenpwned.com, the FBI, and the NCA. Without their amazing work, this project would lack a good database of pwned passwords to check against.
-Also, thanks to Rich Kelley for providing the open source community with the keyboard walk algorithm. While it still is a proof of concept, it saved me a lot of time, tears.
+Also, thanks to Rich Kelley for providing the open source community with the keyboard walk algorithm. While it still is a proof of concept, it saved me a lot of time, and tears.

@@ -1,0 +1,39 @@
+Metadata-Version: 2.1
+Name: python-password-security
+Version: 1.0.0
+Summary: Checks the security of the password based on NSA Network Infrastructure Guidelines
+Author-email: Aria Bagheri <ariab9342@gmail.com>
+Project-URL: Homepage, https://github.com/AriaBagheri/python_password_security
+Keywords: python,security,password,keyboard walks,dictionary attack
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: AUTHORS.rst
+
+---
+title: python-password-security
+---
+
+[![image](https://img.shields.io/pypi/v/python_password_security.svg)](https://pypi.python.org/pypi/python_password_security)
+
+Check your passwords, or you client's passwords against [11.8 billion breached passwords](https://haveibeenpwned.com/). And also against keyboard walks
+
+-   Free software: MIT license
+-   Documentation: <https://python-password-security.readthedocs.io>.
+
+# Features
+
+Tests a single proxy for you!
+Fetches as many proxies as you want for you! (Multithreading applied here. So yes it's fast!)
+Tests those proxies! (Multithreading applied here as well. A lot less IO bottleneck!)
+Returns the ones that do work!
+
+# Credits
+
+This package was coded in it\'s entirety by Aria Bagheri. But you can always contribute if you want! Just fork the project, have your go at it, and then submit a pull request!
+Special thanks to hidemy.name. Without their amazing work, this project would not be here!
+It is worth mentioning that hidemy.name regularly removes broken proxies from their website and their website is constantly updated with new proxies thanks to their ingenious 'spider robot'. 
+But between their proxy check intervals, there are proxies breaking and it is simply not feasible for them to update evey second. 
+That's where this tool comes in handy.

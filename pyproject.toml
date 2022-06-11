@@ -38,4 +38,4 @@ push            = false
     'current_version = "{version}"',
     'version = "{version}"',
 ]
-"src/hide_my_name/__init__.py" = ["{version}"]
+"src/password_security/__init__.py" = ["{version}"]

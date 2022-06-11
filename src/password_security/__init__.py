@@ -1,6 +1,6 @@
 __author__ = """Aria Bagheri"""
 __email__ = 'ariab9342@gmail.com'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 from enum import Enum
 from typing import List
@@ -10,7 +10,7 @@ from pyhibp import pwnedpasswords
 
 from .walk_check import walk_checker
 
-pyhibp.set_user_agent(ua="Python Password Security/1.0.0 (Library to check password security)")
+pyhibp.set_user_agent(ua="Python Password Security/1.0.1 (Library to check password security)")
 
 
 class PasswordSecurityRequirement(Enum):

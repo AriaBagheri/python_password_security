@@ -8,7 +8,7 @@ from typing import List
 import pyhibp
 from pyhibp import pwnedpasswords
 
-from walk_check import walk_checker
+from .walk_check import walk_checker
 
 pyhibp.set_user_agent(ua="Python Password Security/1.0.0 (Library to check password security)")
 

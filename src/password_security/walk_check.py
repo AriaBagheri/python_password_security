@@ -1,7 +1,9 @@
 #     Author for this part of the script: Rich Kelley, rk5devmail@gmail.com, @RGKelley5
+import os
+
 
 def walk_checker(password, length=4, strict=True, loop=False):
-    with open("graph.py", "r") as fin:
+    with open(f"{os.path.dirname(__file__)}/graph.py", "r") as fin:
         graph = eval(fin.read())
 
     result = False

@@ -50,18 +50,18 @@ class PasswordSecurity:
         additional_banned_words and banned_words.update(additional_banned_words)
 
         is_safe = True
-        is_safe &= PSR.NO_BANNED_WORDS not in self.verifiers or not PasswordSecurity.contains_banned_words(password,
-                                                                                                           banned_words)
-        is_safe &= PSR.MIN_16_CHARACTERS not in self.verifiers or PasswordSecurity.is_password_long_enough(password)
+        is_safe &= PSR.NO_BANNED_WORDS not in self.verifiers or not self.contains_banned_words(password,
+                                                                                               banned_words)
+        is_safe &= PSR.MIN_16_CHARACTERS not in self.verifiers or self.is_password_long_enough(password)
 
-        set_problems = PasswordSecurity.get_character_set_missing_list(password)
+        set_problems = self.get_character_set_missing_list(password)
         is_safe &= PSR.USE_NUMBERS not in self.verifiers or PSR.USE_NUMBERS not in set_problems
         is_safe &= PSR.USE_UPPERCASE not in self.verifiers or PSR.USE_UPPERCASE not in set_problems
         is_safe &= PSR.USE_LOWERCASE not in self.verifiers or PSR.USE_LOWERCASE not in set_problems
         is_safe &= PSR.USE_SPECIAL_CHARACTERS not in self.verifiers or PSR.USE_SPECIAL_CHARACTERS not in set_problems
 
-        is_safe &= PSR.NOT_PUBLICLY_KNOWN not in self.verifiers or not PasswordSecurity.is_password_public(password)
-        is_safe &= PSR.NOT_KEYBOARD_WALK not in self.verifiers or not PasswordSecurity.is_keyboard_walk(password)
+        is_safe &= PSR.NOT_PUBLICLY_KNOWN not in self.verifiers or not self.is_password_public(password)
+        is_safe &= PSR.NOT_KEYBOARD_WALK not in self.verifiers or not self.is_keyboard_walk(password)
 
         return is_safe
 
@@ -74,15 +74,15 @@ class PasswordSecurity:
             self.contains_banned_words(password, banned_words) and \
             problems.add(PSR.NO_BANNED_WORDS)
 
-        character_set_problems = PasswordSecurity.get_character_set_missing_list(password)
+        character_set_problems = self.get_character_set_missing_list(password)
         problems.update(character_set_problems.intersection(self.verifiers))
 
         PSR.NOT_PUBLICLY_KNOWN in self.verifiers and \
-            PasswordSecurity.is_password_public(password) and \
+            self.is_password_public(password) and \
             problems.add(PSR.NOT_PUBLICLY_KNOWN)
 
         PSR.NOT_KEYBOARD_WALK in self.verifiers and \
-            PasswordSecurity.is_keyboard_walk(password) and \
+            self.is_keyboard_walk(password) and \
             problems.add(PSR.NOT_KEYBOARD_WALK)
         return problems
 

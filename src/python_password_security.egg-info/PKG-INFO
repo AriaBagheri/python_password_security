@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: python-password-security
-Version: 1.0.1
+Version: 1.0.2
 Summary: Checks the security of the password based on NSA Network Infrastructure Guidelines
 Author-email: Aria Bagheri <ariab9342@gmail.com>
 License: MIT License

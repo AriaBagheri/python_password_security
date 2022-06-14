@@ -3,7 +3,6 @@ __email__ = 'ariab9342@gmail.com'
 __version__ = '1.0.2'
 
 from enum import Enum
-from typing import List
 
 import pyhibp
 from pyhibp import pwnedpasswords
@@ -18,104 +17,107 @@ class PasswordSecurityRequirement(Enum):
     USE_LOWERCASE = 2
     USE_NUMBERS = 3
     USE_SPECIAL_CHARACTERS = 4
-    AT_LEAST_16_CHARACTERS = 5
+    MIN_16_CHARACTERS = 5
     NOT_PUBLICLY_KNOWN = 6
     NOT_KEYBOARD_WALK = 7
-    SHOULD_NOT_CONTAIN_BANNED_WORDS = 8
+    NO_BANNED_WORDS = 8
 
 
 PSR = PasswordSecurityRequirement
 
 
 class PasswordSecurity:
-    verifiers: List[PasswordSecurityRequirement] = [
+    verifiers: set[PSR] = {
         PSR.USE_LOWERCASE,
         PSR.USE_UPPERCASE,
         PSR.USE_NUMBERS,
         PSR.USE_SPECIAL_CHARACTERS,
-        PSR.AT_LEAST_16_CHARACTERS,
+        PSR.MIN_16_CHARACTERS,
         PSR.NOT_PUBLICLY_KNOWN,
         PSR.NOT_KEYBOARD_WALK,
-        PSR.SHOULD_NOT_CONTAIN_BANNED_WORDS,
-    ]
-    banned_words: list = []
+        PSR.NO_BANNED_WORDS,
+    }
+    banned_words: set[str] = set()
 
-    def __init__(self, verifiers: List[PSR] = None, banned_words: list[str] = None):
+    def __init__(self, verifiers: set[PSR] = None, banned_words: set[str] = None):
         if verifiers:
             self.verifiers = verifiers
         if banned_words:
             self.banned_words = banned_words
 
-    def verify_password(self, password: str, additional_banned_words: list[str] = None):
+    def verify_password(self, password: str, additional_banned_words: set[str] = None):
         banned_words = self.banned_words
-        if additional_banned_words:
-            banned_words.extend(additional_banned_words)
+        additional_banned_words and banned_words.update(additional_banned_words)
 
         is_safe = True
-        if PSR.SHOULD_NOT_CONTAIN_BANNED_WORDS in self.verifiers and banned_words:
-            is_safe &= not any(map(lambda x: x in password, banned_words))
-        if PSR.AT_LEAST_16_CHARACTERS in self.verifiers:
-            is_safe &= PasswordSecurity.is_password_long_enough(password)
+        is_safe &= PSR.NO_BANNED_WORDS not in self.verifiers or not PasswordSecurity.contains_banned_words(password,
+                                                                                                           banned_words)
+        is_safe &= PSR.MIN_16_CHARACTERS not in self.verifiers or PasswordSecurity.is_password_long_enough(password)
 
-        is_safe &= len(PasswordSecurity.get_character_set_missing_list(password)) == 0
+        set_problems = PasswordSecurity.get_character_set_missing_list(password)
+        is_safe &= PSR.USE_NUMBERS not in self.verifiers or PSR.USE_NUMBERS not in set_problems
+        is_safe &= PSR.USE_UPPERCASE not in self.verifiers or PSR.USE_UPPERCASE not in set_problems
+        is_safe &= PSR.USE_LOWERCASE not in self.verifiers or PSR.USE_LOWERCASE not in set_problems
+        is_safe &= PSR.USE_SPECIAL_CHARACTERS not in self.verifiers or PSR.USE_SPECIAL_CHARACTERS not in set_problems
 
-        if is_safe and PSR.NOT_PUBLICLY_KNOWN in self.verifiers:
-            is_safe &= not PasswordSecurity.is_password_publicly_known(password)
+        is_safe &= PSR.NOT_PUBLICLY_KNOWN not in self.verifiers or not PasswordSecurity.is_password_public(password)
+        is_safe &= PSR.NOT_KEYBOARD_WALK not in self.verifiers or not PasswordSecurity.is_keyboard_walk(password)
 
-        if is_safe and PSR.NOT_KEYBOARD_WALK in self.verifiers:
-            is_safe &= not PasswordSecurity.is_keyboard_walk(password)
         return is_safe
 
-    def check_password_safety(self, password: str, additional_banned_words: list[str] = None):
+    def check_password_safety(self, password: str, additional_banned_words: set[str] = None) -> set[PSR]:
         banned_words = self.banned_words
-        if additional_banned_words:
-            banned_words.extend(additional_banned_words)
-        missed_list = []
-        if PSR.SHOULD_NOT_CONTAIN_BANNED_WORDS in self.verifiers and any(map(lambda x: x in password, banned_words)):
-            missed_list.append(PSR.SHOULD_NOT_CONTAIN_BANNED_WORDS)
+        additional_banned_words and banned_words.update(additional_banned_words)
+
+        problems = set()
+        PSR.NO_BANNED_WORDS in self.verifiers and \
+            self.contains_banned_words(password, banned_words) and \
+            problems.add(PSR.NO_BANNED_WORDS)
 
         character_set_problems = PasswordSecurity.get_character_set_missing_list(password)
-        missed_list.extend(character_set_problems)
+        problems.update(character_set_problems.intersection(self.verifiers))
 
-        if PSR.NOT_PUBLICLY_KNOWN in self.verifiers and PasswordSecurity.is_password_publicly_known(password):
-            missed_list.append(PSR.NOT_PUBLICLY_KNOWN)
+        PSR.NOT_PUBLICLY_KNOWN in self.verifiers and \
+            PasswordSecurity.is_password_public(password) and \
+            problems.add(PSR.NOT_PUBLICLY_KNOWN)
 
-        if PSR.NOT_KEYBOARD_WALK in self.verifiers and PasswordSecurity.is_keyboard_walk(password):
-            missed_list.append(PSR.NOT_KEYBOARD_WALK)
-        return missed_list
+        PSR.NOT_KEYBOARD_WALK in self.verifiers and \
+            PasswordSecurity.is_keyboard_walk(password) and \
+            problems.add(PSR.NOT_KEYBOARD_WALK)
+        return problems
+
+    @staticmethod
+    def contains_banned_words(password: str, banned_words: set[str]):
+        return any(map(lambda x: x in password or password in x, banned_words))
 
     @staticmethod
     def is_password_long_enough(password: str):
         return len(password) >= 16
 
     @staticmethod
-    def get_character_set_missing_list(password: str):
+    def get_character_set_missing_list(password: str) -> set[PSR]:
         has_uppercase = has_lowercase = has_numbers = has_special_characters = False
 
         # https://owasp.org/www-community/password-special-characters
         special_characters = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
 
-        problems = []
+        problems = set()
 
         for c in password:
-            if not has_uppercase and c.isupper():
-                has_uppercase = True
-                problems.append(PSR.USE_UPPERCASE)
-            if not has_lowercase and c.islower():
-                has_lowercase = True
-                problems.append(PSR.USE_LOWERCASE)
-            if not has_numbers and c.isdigit():
-                has_numbers = True
-                problems.append(PSR.USE_NUMBERS)
-            if not has_special_characters and c in special_characters:
-                has_special_characters = True
-                problems.append(PSR.USE_SPECIAL_CHARACTERS)
-            if has_special_characters and has_numbers and has_uppercase and has_lowercase:
-                break
+            has_uppercase |= c.isupper()
+            has_lowercase |= c.islower()
+            has_numbers |= c.isdigit()
+            has_special_characters |= c in special_characters
+
+        not has_uppercase and problems.add(PSR.USE_UPPERCASE)
+        not has_lowercase and problems.add(PSR.USE_LOWERCASE)
+        not has_numbers and problems.add(PSR.USE_NUMBERS)
+        not has_special_characters and problems.add(PSR.USE_SPECIAL_CHARACTERS)
+
         return problems
 
     @staticmethod
-    def is_password_publicly_known(password: str):
+    def is_password_public(password: str):
         return pwnedpasswords.is_password_breached(password) != 0
 
     @staticmethod
